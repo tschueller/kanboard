@@ -111,6 +111,14 @@
                 <?php else: ?>
                     (<span><span class="ui-helper-hidden-accessible"><?= t('Total number of tasks in this column across all swimlanes') ?> </span><?= $column['column_nb_open_tasks'] ?></span>)
                 <?php endif ?>
+                <?php
+                    // changed by TSC, 21.01.2022: Show the estimated time of all tasks in a column
+                    $time_estimated_sum = 0;
+                    foreach($column['tasks'] as $task) {
+                        $time_estimated_sum += $task['time_estimated'];
+                    }
+                    echo $time_estimated_sum . 'h';
+                ?>
             </span>
             <?php endif ?>
             <?= $this->hook->render('template:board:column:header', array('swimlane' => $swimlane, 'column' => $column)) ?>
