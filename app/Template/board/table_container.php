@@ -17,15 +17,47 @@
                    data-task-creation-url="<?= $this->url->href('TaskCreationController', 'show', array('project_id' => $project['id'])) ?>"
             >
         <?php endif ?>
+<?php
+
+
+// changed by TSC, 04.02.2022: Calculate the estimated/spent time of all tasks in all columns
+// TODO this is certainly not the right place to tap into the data structure, find a better location
+$overview = array('columns' => array());
+foreach($swimlanes as &$swimlane) {
+    foreach($swimlane['columns'] as &$column) {
+        $time_estimated_or_spent_sum = 0;
+        foreach($column['tasks'] as &$task) {
+            $time_estimated_or_spent_sum += max($task['time_estimated'], $task['time_spent']);
+        }
+        $column['time_estimated_or_spent'] = $time_estimated_or_spent_sum;
+        $columnId = $column['id'];
+        if (!isset($overview['columns'][$columnId])) {
+            $overview['columns'][$columnId] = array('time_estimated_or_spent' => 0);
+        }
+        $overview['columns'][$columnId]['time_estimated_or_spent'] += $time_estimated_or_spent_sum;
+    }
+}
+//echo "<pre>"; print_r($overview); echo "</pre>";
+?>
 
         <?php foreach ($swimlanes as $index => $swimlane): ?>
+            <?php $swimlane['name'] = $swimlane['name'] . $swimlane['id']; ?>
             <?php if (! ($swimlane['nb_tasks'] === 0 && isset($not_editable))): ?>
 
                 <?php if ($index === 0 && $swimlane['nb_swimlanes'] > 1): ?>
                     <!-- Render empty columns to setup the "grid" for collapsing columns (Only once and only if more than 1 swimlane in project) -->
                     <?= $this->render('board/table_column_first', array(
                         'swimlane' => $swimlane,
-                        'not_editable' => isset($not_editable),
+                        'not_editable' => isset($not_editable)
+                    )) ?>
+                <?php endif ?>
+
+                <?php if ($index === 0 && $swimlane['nb_swimlanes'] > 1): ?>
+                    <!-- changed by TSC, 04.02.2022: show the estimated/spent time of all tasks in all columns -->
+                    <?= $this->render('board/table_column_overview', array(
+                            'swimlane' => $swimlane,
+                            'not_editable' => isset($not_editable),
+                            'overview' => $overview,
                     )) ?>
                 <?php endif ?>
 
