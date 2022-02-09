@@ -40,7 +40,6 @@ foreach($swimlanes as &$swimlane) {
         <?php endif ?>
 
         <?php foreach ($swimlanes as $index => &$swimlane): ?>
-            <?php $swimlane['name'] = $swimlane['name'] . $swimlane['id']; ?>
             <?php if (! ($swimlane['nb_tasks'] === 0 && isset($not_editable))): ?>
 
                 <?php if ($index === 0 && $swimlane['nb_swimlanes'] > 1): ?>
