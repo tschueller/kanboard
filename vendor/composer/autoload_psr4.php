@@ -6,8 +6,11 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),
+    'Symfony\\Polyfill\\Php73\\' => array($vendorDir . '/symfony/polyfill-php73'),
     'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),
-    'Symfony\\Contracts\\' => array($vendorDir . '/symfony/contracts'),
+    'Symfony\\Contracts\\Service\\' => array($vendorDir . '/symfony/service-contracts'),
+    'Symfony\\Contracts\\EventDispatcher\\' => array($vendorDir . '/symfony/event-dispatcher-contracts'),
     'Symfony\\Component\\Finder\\' => array($vendorDir . '/symfony/finder'),
     'Symfony\\Component\\EventDispatcher\\' => array($vendorDir . '/symfony/event-dispatcher'),
     'Symfony\\Component\\Console\\' => array($vendorDir . '/symfony/console'),
@@ -16,7 +19,7 @@ return array(
     'MatthiasMullie\\PathConverter\\' => array($baseDir . '/libs/path-converter/src'),
     'MatthiasMullie\\Minify\\' => array($baseDir . '/libs/minify/src'),
     'Kanboard\\' => array($baseDir . '/app'),
-    'Gregwar\\' => array($vendorDir . '/gregwar/captcha/src/Gregwar'),
-    'Eluceo\\iCal\\' => array($vendorDir . '/eluceo/ical/src'),
+    'Gregwar\\' => array($baseDir . '/libs'),
+    'Eluceo\\iCal\\' => array($baseDir . '/libs/ical'),
     'Base32\\' => array($vendorDir . '/christian-riesen/base32/src'),
 );

@@ -67,7 +67,7 @@ class TaskModificationController extends BaseController
                 $this->response->redirect($this->helper->url->to('DashboardController', 'tasks', ['user_id' => $this->userSession->getId()]));
                 break;
             default:
-                $this->response->redirect($this->helper->url->to('TaskViewController', 'show', ['project_id' => $task['project_id'], 'task_id' => $task['id']]));
+                $this->response->redirect($this->helper->url->to('TaskViewController', 'show', ['task_id' => $task['id']]));
         }
     }
 
@@ -149,7 +149,7 @@ class TaskModificationController extends BaseController
 
         if ($valid && $this->updateTask($task, $values, $errors)) {
             $this->flash->success(t('Task updated successfully.'));
-            $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('project_id' => $task['project_id'], 'task_id' => $task['id'])), true);
+            $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id'])), true);
         } else {
             $this->flash->failure(t('Unable to update your task.'));
             $this->edit($values, $errors);
