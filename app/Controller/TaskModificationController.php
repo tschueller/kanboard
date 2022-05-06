@@ -143,6 +143,7 @@ class TaskModificationController extends BaseController
         $values['project_id'] = $task['project_id'];
 
         $values['time_estimated'] = $this->prepareTime($values['time_estimated']);
+        $values['time_spent'] = $this->prepareTime($values['time_spent']);
 
         list($valid, $errors) = $this->taskValidator->validateModification($values);
 
@@ -187,7 +188,7 @@ class TaskModificationController extends BaseController
         $time = str_replace(",", ".", $time);
 
         if (is_numeric($time)) {
-            return $time;
+            return round($time, 2);
         }
 
         $sum = 0;
@@ -198,6 +199,6 @@ class TaskModificationController extends BaseController
         $data = preg_match_all('/(\d+)m/', $time, $matches);
         $sum += intval(($matches[1][0]??0))/60;
 
-        return $sum;
+        return round($sum, 2);
     }
 }
