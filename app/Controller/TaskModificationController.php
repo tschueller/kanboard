@@ -23,7 +23,7 @@ class TaskModificationController extends BaseController
         if (! $this->helper->projectRole->canUpdateTask($task)) {
             throw new AccessForbiddenException(t('You are not allowed to update tasks assigned to someone else.'));
         }
-        
+
         if (! $this->helper->projectRole->canChangeAssignee($task)) {
             throw new AccessForbiddenException(t('You are not allowed to change the assignee.'));
         }
@@ -142,6 +142,8 @@ class TaskModificationController extends BaseController
         $values['id'] = $task['id'];
         $values['project_id'] = $task['project_id'];
 
+        $values['time_estimated'] = $this->prepareTime($values['time_estimated']);
+
         list($valid, $errors) = $this->taskValidator->validateModification($values);
 
         if ($valid && $this->updateTask($task, $values, $errors)) {
@@ -178,5 +180,24 @@ class TaskModificationController extends BaseController
         }
 
         return $result;
+    }
+
+    // added by TSC, 06.05.2022: allow special time string (like '1h 15m') or , as separator instead .
+    private function prepareTime(mixed $time) {
+        $time = str_replace(",", ".", $time);
+
+        if (is_numeric($time)) {
+            return $time;
+        }
+
+        $sum = 0;
+        $data = preg_match_all('/(\d+)d/', $time, $matches);
+        $sum += intval(($matches[1][0]??0)) * 8;
+        $data = preg_match_all('/(\d+)h/', $time, $matches);
+        $sum += intval(($matches[1][0]??0));
+        $data = preg_match_all('/(\d+)m/', $time, $matches);
+        $sum += intval(($matches[1][0]??0))/60;
+
+        return $sum;
     }
 }
