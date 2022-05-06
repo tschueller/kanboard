@@ -36,6 +36,19 @@ KB.keyboardShortcuts = function () {
             KB.trigger('modal.close');
             _KB.get("Dropdown").close();
         }
+
+        // added by TSC, 06.05.2022: ESC => goto back to bard view
+        if (KB.exists('#task-view')) {
+            goToLink('a.view-board');
+        }
+
+    }, true);
+
+    KB.onKey('Backspace', function () {
+        // added by TSC, 06.05.2022: Backspace => goto back to bard view
+        if (KB.exists('#task-view')) {
+            goToLink('a.view-board');
+        }
     }, true);
 
     KB.onKey('Enter', submitForm, true, true);

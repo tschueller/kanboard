@@ -20,6 +20,7 @@
         <li><?= t('New subtask') ?> = <strong>s</strong></li>
         <li><?= t('New comment') ?> = <strong>c</strong></li>
         <li><?= t('New internal link') ?> = <strong>l</strong></li>
+        <li><?= t('Back to board view') ?> = <strong>ESC</strong> <?= t('or') ?> <strong>Backspace</strong> </li>
     </ul>
     <h3><?= t('Application') ?></h3>
     <ul>
