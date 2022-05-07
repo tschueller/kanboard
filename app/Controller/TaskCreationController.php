@@ -3,6 +3,7 @@
 namespace Kanboard\Controller;
 
 use Kanboard\Core\Controller\PageNotFoundException;
+use Kanboard\Core\DateTime;
 
 /**
  * Task Creation Controller
@@ -50,6 +51,9 @@ class TaskCreationController extends BaseController
         $project = $this->getProject();
         $values = $this->request->getValues();
         $values['project_id'] = $project['id'];
+
+        $values['time_estimated'] = DateTime::prepareTime($values['time_estimated']);
+        $values['time_spent'] = DateTime::prepareTime($values['time_spent']);
 
         list($valid, $errors) = $this->taskValidator->validateCreation($values);
 

@@ -5,6 +5,7 @@ namespace Kanboard\Controller;
 use Kanboard\Core\Controller\AccessForbiddenException;
 use Kanboard\Core\ExternalTask\AccessForbiddenException as ExternalTaskAccessForbiddenException;
 use Kanboard\Core\ExternalTask\ExternalTaskException;
+use Kanboard\Core\DateTime;
 
 /**
  * Task Modification controller
@@ -142,8 +143,8 @@ class TaskModificationController extends BaseController
         $values['id'] = $task['id'];
         $values['project_id'] = $task['project_id'];
 
-        $values['time_estimated'] = $this->prepareTime($values['time_estimated']);
-        $values['time_spent'] = $this->prepareTime($values['time_spent']);
+        $values['time_estimated'] = DateTime::prepareTime($values['time_estimated']);
+        $values['time_spent'] = DateTime::prepareTime($values['time_spent']);
 
         list($valid, $errors) = $this->taskValidator->validateModification($values);
 
@@ -181,24 +182,5 @@ class TaskModificationController extends BaseController
         }
 
         return $result;
-    }
-
-    // added by TSC, 06.05.2022: allow special time string (like '1h 15m') or , as separator instead .
-    private function prepareTime(mixed $time) {
-        $time = str_replace(",", ".", $time);
-
-        if (is_numeric($time)) {
-            return round($time, 2);
-        }
-
-        $sum = 0;
-        $data = preg_match_all('/(\d+)d/', $time, $matches);
-        $sum += intval(($matches[1][0]??0)) * 8;
-        $data = preg_match_all('/(\d+)h/', $time, $matches);
-        $sum += intval(($matches[1][0]??0));
-        $data = preg_match_all('/(\d+)m/', $time, $matches);
-        $sum += intval(($matches[1][0]??0))/60;
-
-        return round($sum, 2);
     }
 }
