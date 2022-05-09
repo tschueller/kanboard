@@ -377,12 +377,33 @@ class TaskFinderModel extends Base
     public function countByColumnAndSwimlaneId($project_id, $column_id, $swimlane_id)
     {
         return $this->db
-                    ->table(TaskModel::TABLE)
-                    ->eq('project_id', $project_id)
-                    ->eq('column_id', $column_id)
-                    ->eq('swimlane_id', $swimlane_id)
-                    ->eq('is_active', 1)
-                    ->count();
+            ->table(TaskModel::TABLE)
+            ->eq('project_id', $project_id)
+            ->eq('column_id', $column_id)
+            ->eq('swimlane_id', $swimlane_id)
+            ->eq('is_active', 1)
+            ->count();
+    }
+
+
+    /**
+     * Count the number of tasks for a given column title
+     * Added by TSC, 09.05.2022
+     *
+     * @access public
+     * @param  integer   $project_id     Project id
+     * @param  string    $column_title   Column title
+     * @return integer
+     */
+    public function countByColumnTitle($project_id, $column_title)
+    {
+        return $this->db
+            ->table(TaskModel::TABLE)
+            ->eq(TaskModel::TABLE.'.project_id', $project_id)
+            ->eq(ColumnModel::TABLE.'.title', $column_title)
+            ->eq(TaskModel::TABLE.'.is_active', 1)
+            ->join(ColumnModel::TABLE, 'id', 'column_id', TaskModel::TABLE)
+            ->count();
     }
 
     /**

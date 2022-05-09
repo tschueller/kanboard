@@ -93,6 +93,27 @@ class TaskStatusModel extends Base
         $this->closeMultipleTasks($task_ids);
     }
 
+   /**
+     * Close all tasks within a column/project
+     * Added by TSC, 09.05.2022
+     *
+     * @access public
+     * @param  integer $project_id
+     * @param  string $column_title
+     */
+    public function closeTasksByProjectAndColumnTitle($project_id, $column_title)
+    {
+        $task_ids = $this->db
+            ->table(TaskModel::TABLE)
+            ->eq(TaskModel::TABLE.'.project_id', $project_id)
+            ->eq(ColumnModel::TABLE.'.title', $column_title)
+            ->eq(TaskModel::TABLE.'.is_active', TaskModel::STATUS_OPEN)
+            ->join(ColumnModel::TABLE, 'id', 'column_id', TaskModel::TABLE)
+            ->findAllByColumn(TaskModel::TABLE.'.id');
+
+        $this->closeMultipleTasks($task_ids);
+    }
+
     /**
      * Common method to change the status of task
      *
