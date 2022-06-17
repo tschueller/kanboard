@@ -67,7 +67,16 @@ Kanboard.App.prototype.datePicker = function() {
         timeFormat: timeFormat,
         constrainInput: false,
         amNames: ['am', 'AM'],
-        pmNames: ['pm', 'PM']
+        pmNames: ['pm', 'PM'],
+
+        // Added by TSC, 17.06.2022
+        stepMinute: 5,
+        timeInput: true,
+        hour: new Date().getHours(),
+        minute: new Date().getMinutes(),
+        hourMin: 06,
+        hourMax: 22,
+
     });
 };
 
