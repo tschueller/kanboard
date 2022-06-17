@@ -49,4 +49,42 @@ class TaskMovePositionController extends BaseController
 
         $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id'])));
     }
+
+    /**
+     * Move a task to top
+     * Added by TSC, 17.06.2022
+     *
+     * @access public
+     */
+    public function moveToTop()
+    {
+        $task = $this->getTask();
+        $this->taskPositionModel->movePosition(
+            $task['project_id'],
+            $task['id'],
+            $task['column_id'],
+            1,
+            $task['swimlane_id']
+        );
+        $this->response->redirect($this->helper->url->to('BoardViewController', 'show', ['project_id' => $task['project_id']]));
+    }
+    /**
+     * Move a task to bottom
+     * Added by TSC, 17.06.2022
+     *
+     * @access public
+     */
+    public function moveToBottom()
+    {
+        $task = $this->getTask();
+        $this->taskPositionModel->movePosition(
+            $task['project_id'],
+            $task['id'],
+            $task['column_id'],
+            9999, // TODO Find a better way to get latest position
+            $task['swimlane_id']
+        );
+        $this->response->redirect($this->helper->url->to('BoardViewController', 'show', ['project_id' => $task['project_id']]));
+    }
+
 }

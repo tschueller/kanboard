@@ -55,6 +55,16 @@
         <li>
             <?= $this->modal->small('clone', t('Move to project'), 'TaskDuplicationController', 'move', array('task_id' => $task['id'], 'project_id' => $task['project_id'])) ?>
         </li>
+
+        <?php if ($task['is_active'] == 1 && $this->projectRole->isSortableColumn($task['project_id'], $task['column_id'])): ?>
+        <li>
+            <?= $this->url->icon('long-arrow-up', t('Move to top'), 'TaskMovePositionController', 'moveToTop', array('task_id' => $task['id'], 'position' => 1)) ?>
+        </li>
+        <li>
+            <?= $this->url->icon('long-arrow-down', t('Move to bottom'), 'TaskMovePositionController', 'moveToBottom', array('task_id' => $task['id'], 'position' => 1)) ?>
+        </li>
+        <?php endif ?>
+
         <li>
             <?= $this->modal->small('paper-plane', t('Send by email'), 'TaskMailController', 'create', array('task_id' => $task['id'])) ?>
         </li>
