@@ -161,6 +161,10 @@
                 </ul>
             </div>
         <?php endif ?>
+        <!-- Added by TSC, 19.08.2022 -->
+        <button class="js-modal-large btn" href="<?= $this->helper->url->href('TaskModificationController', 'edit', array('task_id' => $task['id'])) ?>">
+            <i class="fa fa-edit fa-fw js-modal-large"></i><?= t('Edit the task') ?>
+        </button>
     </div>
 
     <?php if (! empty($task['external_uri']) && ! empty($task['external_provider'])): ?>
