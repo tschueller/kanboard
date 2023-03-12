@@ -1407,7 +1407,8 @@ class Parsedown
             return;
         }
 
-        if (preg_match('/\bhttps?:[\/]{2}[^\s<]+\b\/*/ui', $Excerpt['context'], $matches, PREG_OFFSET_CAPTURE))
+        // changed by TSC, 12.03.2023: allow also http and joplin as protocol
+        if (preg_match('/\b(https|http|joplin)?:[\/]{2}[^\s<]+\b\/*/ui', $Excerpt['context'], $matches, PREG_OFFSET_CAPTURE))
         {
             $url = $matches[0][0];
 
@@ -1419,6 +1420,7 @@ class Parsedown
                     'text' => $url,
                     'attributes' => array(
                         'href' => $url,
+                        'target' => '_blank',
                     ),
                 ),
             );
