@@ -14,6 +14,7 @@ body {
 }
 
 body {
+    background-color: var(--body-background-color);
     font-size: 100%;
     padding-bottom: 10px;
     color: var(--color-primary);
@@ -46,7 +47,8 @@ hr {
 }
 
 .pull-right {
-    text-align: right
+    text-align: right;
+    margin-left: auto
 }
 
 ul.no-bullet li {

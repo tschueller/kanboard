@@ -43,6 +43,7 @@ defined('DB_DRIVER') or define('DB_DRIVER', getenv('DB_DRIVER') ?: 'sqlite');
 
 // Sqlite configuration
 defined('DB_FILENAME') or define('DB_FILENAME', getenv('DB_FILENAME') ?: DATA_DIR.DIRECTORY_SEPARATOR.'db.sqlite');
+defined('DB_WAL_MODE') or define('DB_WAL_MODE', getenv('DB_WAL_MODE') ? strtolower(getenv('DB_WAL_MODE')) === 'true' : true);
 
 // Mysql/Postgres configuration
 defined('DB_USERNAME') or define('DB_USERNAME', getenv('DB_USERNAME') ?: 'root');
@@ -100,6 +101,7 @@ defined('LDAP_GROUP_SYNC') or define('LDAP_GROUP_SYNC', getenv('LDAP_GROUP_SYNC'
 defined('REVERSE_PROXY_AUTH') or define('REVERSE_PROXY_AUTH', strtolower(getenv('REVERSE_PROXY_AUTH')) === 'true');
 defined('REVERSE_PROXY_USER_HEADER') or define('REVERSE_PROXY_USER_HEADER', getenv('REVERSE_PROXY_USER_HEADER') ?: 'REMOTE_USER');
 defined('REVERSE_PROXY_EMAIL_HEADER') or define('REVERSE_PROXY_EMAIL_HEADER', getenv('REVERSE_PROXY_EMAIL_HEADER') ?: 'REMOTE_EMAIL');
+defined('REVERSE_PROXY_FULLNAME_HEADER') or define('REVERSE_PROXY_FULLNAME_HEADER', getenv('REVERSE_PROXY_FULLNAME_HEADER') ?: 'REMOTE_FULLNAME');
 defined('REVERSE_PROXY_DEFAULT_ADMIN') or define('REVERSE_PROXY_DEFAULT_ADMIN', getenv('REVERSE_PROXY_DEFAULT_ADMIN') ?: '');
 defined('REVERSE_PROXY_DEFAULT_DOMAIN') or define('REVERSE_PROXY_DEFAULT_DOMAIN', getenv('REVERSE_PROXY_DEFAULT_DOMAIN') ?: '');
 

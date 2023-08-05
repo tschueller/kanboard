@@ -1,3 +1,113 @@
+Version 1.2.32 (July 11, 2023)
+------------------------------
+
+* Fix unexpected EventDispatcher exception in cronjob and during logout
+* Integration Tests: Run `apt update` before installing Apache
+* Automatic action `TaskMoveColumnClosed` does not log column movement
+* Tweak Sqlite connection settings to reduce database locked errors
+* Bump `phpunit/phpunit` from `9.6.9` to `9.6.10`
+
+Version 1.2.31 (July 3, 2023)
+-----------------------------
+
+Security Fixes:
+
+- [CVE-2023-36813: Avoid potential SQL injections without breaking compatibility with plugins](https://github.com/kanboard/kanboard/security/advisories/GHSA-9gvq-78jp-jxcx)
+
+Other fixes and updates:
+
+- Run tests with PHP 8 on GitHub Actions
+- Bump Symfony dependencies
+- Update Composer dependencies to be able to run tests with PHP 8.2
+- Add `/usr/bin/php` symlink in the Docker image
+- Replace usage of `at()` matcher with alternatives in unit tests
+- Adjust plugin directory test case to work on released versions
+- Fix incorrect background dynamic property in captcha library
+- Update translations
+
+Version 1.2.30 (June 2, 2023)
+-----------------------------
+
+Security Fixes:
+
+- [CVE-2023-33956: Parameter based Indirect Object Referencing leading to private file exposure](https://github.com/kanboard/kanboard/security/advisories/GHSA-r36m-44gg-wxg2)
+- [CVE-2023-33968: Missing access control allows user to move and duplicate tasks to any project in the software](https://github.com/kanboard/kanboard/security/advisories/GHSA-gf8r-4p6m-v8vr)
+- [CVE-2023-33969: Stored XSS in the Task External Link Functionality](https://github.com/kanboard/kanboard/security/advisories/GHSA-8qvf-9847-gpc9)
+- [CVE-2023-33970: Missing access control in internal task links feature](https://github.com/kanboard/kanboard/security/advisories/GHSA-wfch-8rhv-v286)
+
+Other Fixes:
+
+- Avoid PHP warning caused by `session_regenerate_id()`
+- Avoid CSS issue when upgrading to v1.2.29 without flushing user sessions
+
+Version 1.2.29 (May 23, 2023)
+-----------------------------
+
+* Avoid potential clipboard based cross-site scripting ([CVE-2023-32685](https://github.com/kanboard/kanboard/security/advisories/GHSA-hjmw-gm82-r4gv))
+* Upgrade Docker image to PHP 8.2 and Alpine 3.18
+* Add themes support: dark, light and automatic mode
+* Fix broken "Hide this Column" feature
+* Do not close modals when clicking on the background if the form has changed
+* Fix incorrect route for "My Activity Stream"
+* Fix incorrect parameter encoding when using URLs rewriting
+* Add support for task links in Markdown headings
+* Handle 413 responses from Nginx when uploading files too large
+* Restore all previously loaded translations when sending user notifications
+* Regenerate session ID after successful authentication
+* Use `SESSION_DURATION` option to define the session lifetime stored in the database
+    - The option `SESSION_DURATION` is used to define the cookie lifetime.
+    - With this change, Kanboard will try to use first `SESSION_DURATION` instead of the
+    default `session.gc_maxlifetime` value.
+* Bump `phpunit/phpunit` from `9.6.6` to `9.6.8`
+
+Version 1.2.28 (April 8, 2023)
+------------------------------
+
+* Trigger `EVENT_MOVE_COLUMN` event when moving task to another swimlane
+* Allow moving closed tasks when using the API
+* Duplicate external links when duplicating tasks
+* Add support for comparison operator to priority filter
+* Prevents users to convert subtaks to tasks when custom role does not allow it
+* Avoid deprecation messages when sending an email with PHP 8.2
+* Declare most common routes to have nice URLs
+* Improve wording of bulk action modal to move tasks position
+* Allow closing modals by clicking on the background
+* Improve wording of the menu to close all tasks in a given column/swimlane
+* Fix bug that prevent reordering subtasks after changing the status
+* Bump version of `phpunit/phpunit`, `symfony/stopwatch`, and `symfony/finder`
+* Use `GITHUB_TOKEN` instead of a personal token to run GitHub Actions
+* Duplicate attachments & external links during task duplication & importing
+* Move Docker image to run automated tests to GitHub Registry
+* Push Docker images to an additional registry Quay.io (RedHat)
+* Use the appropriate config for the start column in user iCal export
+* Improved translations
+
+Version 1.2.27 (March 5, 2023)
+------------------------------
+
+- Fix category filter when the category name is a number
+- Better handling of max file upload size according to PHP settings
+    - Allow unlimited size
+    - Better parsing of PHP size
+- Add dropdown menu on the board to reorder tasks by ID
+- Separate `font-family` specification for input and textarea. This avoids the use of `!important` in custom CSS
+- Change the total number of tasks displayed in the table header to match the description "Total number of tasks in this column across all swimlanes"
+- Allow full name to be retrieved by the reverse proxy authentication
+- Fix `pull-right` CSS class alignment
+- Use a separate dropdown menu for column sorting
+- Use `assertEqualsWithDelta()` to test `time_spent`
+- Add `color_id` argument to tag API procedures
+- Update task time spent/estimated when removing a subtask
+- Command `db:migrate` should work even if `DB_RUN_MIGRATIONS` is false
+- Always trim the username before saving changes in the database
+- Avoid Postgres SQL error when using project filter with a large integer
+- Enable Sqlite WAL mode by default:
+    - WAL provides more concurrency as readers do not block writers and,
+    a writer does not block readers. Reading and writing can proceed concurrently.
+    This change might reduce the number of errors related to locked databases.
+- Update translations
+- Update PHP dependencies: `phpunit/phpunit`, `symfony/stopwatch` and `symfony/finder`
+
 Version 1.2.26 (January 14, 2023)
 ---------------------------------
 
@@ -170,7 +280,7 @@ Version 1.2.16 (October 9, 2020)
 * Add ARIA label to user mention
 * Add ARIA label to letter avatars
 * Add ARIA label to project select role without label
-* Add ARIA label to dropdown autocomplete without label 
+* Add ARIA label to dropdown autocomplete without label
 * Add ARIA label to form text editor without label
 * Add ARIA label to icons with title attributes
 * Add ARIA label for form inputs without labels

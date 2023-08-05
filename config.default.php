@@ -47,7 +47,7 @@ define('MAIL_FROM', 'replace-me@kanboard.local');
 // E-mail address used for the "Bcc" header to send a copy of all notifications
 define('MAIL_BCC', '');
 
-// Mail transport available: "smtp", "sendmail", "mail" (PHP mail function), "postmark", "mailgun", "sendgrid"
+// Mail transport available: "smtp", "sendmail", "mail" (PHP mail function)
 define('MAIL_TRANSPORT', 'mail');
 
 // SMTP configuration to use when the "smtp" transport is chosen
@@ -211,8 +211,11 @@ define('REVERSE_PROXY_USER_HEADER', 'REMOTE_USER');
 // Username of the admin, by default blank
 define('REVERSE_PROXY_DEFAULT_ADMIN', '');
 
-// Header name to use for the username
+// Header name to use for the user email
 define('REVERSE_PROXY_EMAIL_HEADER', 'REMOTE_EMAIL');
+
+// Header name to use for the user full name
+define('REVERSE_PROXY_FULLNAME_HEADER', 'REMOTE_NAME');
 
 // Default domain to use for setting the email address
 define('REVERSE_PROXY_DEFAULT_DOMAIN', '');
