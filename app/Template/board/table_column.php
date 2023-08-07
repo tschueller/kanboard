@@ -49,6 +49,7 @@
                             <?php endif ?>
                         </ul>
                         <?php if ($column['nb_tasks'] > 0 && $this->user->hasProjectAccess('TaskModificationController', 'update', $column['project_id'])): ?>
+                            <!-- Changed by tsc, 07.08.2023: hide new sorting dropdown, because this is not necessary for my personal-kanban
                             <span class="dropdown">
                                 <a href="#" class="dropdown-menu"><i class="fa fa-sort"></i></i></a>
                                 <ul>
@@ -84,6 +85,7 @@
                                     </li>
                                 </ul>
                             </span>
+                            -->
                         <?php endif ?>
 
                         <?= $this->hook->render('template:board:column:dropdown', array('swimlane' => $swimlane, 'column' => $column)) ?>
