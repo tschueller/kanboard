@@ -2,6 +2,19 @@
     var isOpen = false;
     var isFormDirty = false;
 
+    // Workaround by TSC, 07.08.2023: Use mousedown and mouse up, so that the dialog does not close
+    // when you select text inside the dialog and then release the mouse outside of the dialog.
+    var isMouseDownOnOverlay = false;
+    function onOverlayMouseDown(e) {
+        isMouseDownOnOverlay = e.target.matches('#modal-overlay');
+    }
+    function onOverlayMouseUp(e) {
+        if (isMouseDownOnOverlay) {
+            isMouseDownOnOverlay = false;
+            onOverlayClick(e);
+        }
+    }
+
     function onOverlayClick(e) {
         if (e.target.matches('#modal-overlay') && isFormDirty === false) {
             e.stopPropagation();
@@ -119,7 +132,12 @@
             .build();
 
         if (overlayClickDestroy) {
-            overlayElement.addEventListener('click', onOverlayClick, false);
+            // Workaround by TSC, 07.08.2023: Use mousedown and mouse up, so that the dialog does not close
+            // when you select text inside the dialog and then release the mouse outside of the dialog.
+            // TODO check in future version if this is still necessary
+            // overlayElement.addEventListener('click', onOverlayClick, false);
+            overlayElement.addEventListener('mousedown', onOverlayMouseDown, false);
+            overlayElement.addEventListener('mouseup', onOverlayMouseUp, false);
         }
 
         document.body.appendChild(overlayElement);
