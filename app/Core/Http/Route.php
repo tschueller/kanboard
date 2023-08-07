@@ -101,7 +101,7 @@ class Route extends Base
 
                 for ($i = 0; $i < $count; $i++) {
                     if ($route['items'][$i][0] === ':') {
-                        $params[substr($route['items'][$i], 1)] = urldecode($items[$i]);
+                        $params[substr($route['items'][$i], 1)] = urldecode($items[$i] ?? ''); // Changed by tsc, 07.08.2023, fixed PHP8.1 deprecation waring
                     } elseif ($route['items'][$i] !== $items[$i]) {
                         break;
                     }
@@ -152,7 +152,7 @@ class Route extends Base
                 $i = 0;
 
                 foreach ($params as $variable => $value) {
-                    $value = urlencode($value);
+                    $value = urlencode($value ?? ''); // Changed by tsc, 07.08.2023, fixed PHP8.1 deprecation waring
                     $url = str_replace(':'.$variable, $value, $url);
                     $i++;
                 }
