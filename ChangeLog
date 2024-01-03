@@ -1,3 +1,32 @@
+Version 1.2.34 (December 13, 2023)
+----------------------------------
+
+* Upgrade Docker image to Alpine 3.19 and PHP 8.3
+* API: Avoid PHP notice when searching for a project name that does not exist
+* Update Bulgarian translation
+* Bump `symfony/console` from `5.4.28` to `5.4.32`
+* Bump `phpunit/phpunit` from `9.6.13` to `9.6.15`
+
+Version 1.2.33 (October 15, 2023)
+---------------------------------
+
+* Do not close modals when clicking on the background
+* Add Bulgarian translation
+* Update Ukrainian and Russian translations
+* Show the two factor form in the middle of the screen like the login form does
+* Do not override the `creator_id` with the current logged user if the task is imported
+* Add basic Dev Container configs
+* Add adaptive SVG favicon and more SVG variants:
+    * See https://web.dev/building-an-adaptive-favicon/
+    * Added more variant of the original Inkscape icon:
+        - Text SVG
+        - Vectorized text path SVG
+        - Optimized SVG icon
+* Remove `project_id` from task links (A few were missed in #4892)
+* Remove unused and invalid method in `ProjectModel`
+* Update `phpunit/phpunit` and `symfony/*` dependencies
+* Update vendor folder
+
 Version 1.2.32 (July 11, 2023)
 ------------------------------
 
