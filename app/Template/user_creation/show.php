@@ -50,11 +50,15 @@
 
                 <?= $this->form->label(t('Language'), 'language') ?>
                 <?= $this->form->select('language', $languages, $values, $errors) ?>
-                
+
                 <?= $this->form->label(t('Filter'), 'filter') ?>
                 <?= $this->form->text('filter', $values, $errors) ?>
 
-                <?= $this->form->checkbox('notifications_enabled', t('Enable email notifications'), 1, isset($values['notifications_enabled']) && $values['notifications_enabled'] == 1 ? true : false) ?>
+                <?php if ($this->app->config('notifications_enabled') == 1): ?>
+                    <input type="hidden" name="notifications_enabled" value="1">
+                <?php else: ?>
+                    <?= $this->form->checkbox('notifications_enabled', t('Enable email notifications'), 1, isset($values['notifications_enabled']) && $values['notifications_enabled'] == 1 ? true : false) ?>
+                <?php endif; ?>
             </fieldset>
 
             <fieldset>

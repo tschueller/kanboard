@@ -72,7 +72,7 @@ class TaskHelper extends Base
             $html .= '<a href="#" class="dropdown-menu dropdown-menu-link-icon"><i class="fa fa-floppy-o fa-fw" aria-hidden="true"></i>'.t('Template for the task description').' <i class="fa fa-caret-down" aria-hidden="true"></i></a>';
             $html .= '<ul>';
 
-            foreach ($templates as  $template) {
+            foreach ($templates as $template) {
                 $html .= '<li>';
                 $html .= '<a href="#" data-template-target="textarea[name=description]" data-template="'.$this->helper->text->e($template['description']).'" class="js-template">';
                 $html .= $this->helper->text->e($template['title']);
@@ -260,6 +260,59 @@ class TaskHelper extends Base
         return '';
     }
 
+    public function renderInternalLinkField(array $internallinks, array $values, array $errors = array(), array $attributes = array())
+    {
+        $html = '';
+
+        $html .= $this->helper->form->hidden('opposite_task_id', $values);
+        $html .= '<span class="task-internallink" title="'.t('Add internal link').'">'.t('Add internal link').'</span>';
+        $html .= '<br><br>';
+        $html .= $this->helper->form->label(t('Label'), 'link_id');
+        $html .= $this->helper->form->select('link_id', $internallinks, $values, $errors, $attributes);
+
+        $html .= $this->helper->form->label(t('Task'), 'title');
+        $html .= $this->helper->form->text(
+            'title',
+            $values,
+            $errors,
+            array(
+                'required',
+                'placeholder="'.t('Start to type task title...').'"',
+                'title="'.t('Start to type task title...').'"',
+                'data-dst-field="opposite_task_id"',
+                'data-search-url="'.$this->helper->url->href('TaskAjaxController', 'autocomplete', array('exclude_task_ids' => $values['task_ids'])).'"',
+            ),
+            'autocomplete'
+        );
+
+        return $html;
+    }
+
+    public function renderFileUpload($screenshot = '', array $files = array())
+    {
+        $upload_max_size = get_upload_max_size()*0.90; // 10% margin for the orther part of request + conversion in base64
+        $html =  '<div class="task-form-bottom-column">';
+        $html .=  '    <div id="screenshot-zone">';
+        $html .=  '        <p id="screenshot-inner">'.t('Take a screenshot and press CTRL+V or ⌘+V to paste here.').'</p>';
+        $html .=  '    </div>';
+        $html .=  '</div>';
+        $html .=  '<div class="task-form-bottom-column">';
+        $html .=  $this->helper->app->component('file-upload-task-create', array(
+            'maxSize'           => $upload_max_size,
+            'labelDropzone'     => t('Drag and drop your files here'),
+            'labelOr'           => t('or'),
+            'labelChooseFiles'  => t('choose files'),
+            'labelOversize'     => t('The total maximum allowed attachments size is %sB.', $this->helper->text->bytes($upload_max_size)),
+            'labelSuccess'      => t('All files have been uploaded successfully.'),
+            'labelCloseSuccess' => t('Close this window'),
+            'labelUploadError'  => t('Unable to upload this file.'),
+            'screenshot' => $screenshot,
+            'files' => $files,
+        ));
+        $html .=  '</div>';
+        return $html;
+    }
+
     public function getProgress($task)
     {
         if (! isset($this->columns[$task['project_id']])) {
@@ -279,7 +332,8 @@ class TaskHelper extends Base
                 'plus',
                 t('Add a new task'),
                 'TaskCreationController',
-                'show', array(
+                'show',
+                array(
                     'project_id'  => $column['project_id'],
                     'column_id'   => $column['id'],
                     'swimlane_id' => $swimlane['id'],
@@ -293,7 +347,8 @@ class TaskHelper extends Base
                 'plus',
                 t('Add a new Kanboard task'),
                 'TaskCreationController',
-                'show', array(
+                'show',
+                array(
                     'project_id'  => $column['project_id'],
                     'column_id'   => $column['id'],
                     'swimlane_id' => $swimlane['id'],
