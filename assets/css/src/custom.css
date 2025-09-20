@@ -4,3 +4,19 @@
     padding: 0 0.2em;
     font-weight: bold;
 }
+
+/* make drag handle bigger so that it is easier to grab and change position to bottom so that there is no conflict with other controls */
+.task-board-sort-handle {
+    float: none !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    cursor: move;
+    min-height: 24px;
+    min-width: 24px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
