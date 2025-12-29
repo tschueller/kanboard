@@ -1,7 +1,8 @@
 <?php
 
-require_once __DIR__.'/../../Base.php';
+namespace KanboardTests\units\Core\ObjectStorage;
 
+use KanboardTests\units\Base;
 use Kanboard\Core\ObjectStorage\FileStorage;
 use Kanboard\Core\ObjectStorage\ObjectStorageException;
 
@@ -127,5 +128,17 @@ class FileStorageTest extends Base
     {
         $this->expectException(ObjectStorageException::class);
         $this->storage->get('../outside.txt');
+    }
+
+    public function testSanitizePathOutsideBaseDir()
+    {
+        $this->expectException(ObjectStorageException::class);
+        $this->assertEquals($this->tempDir . DIRECTORY_SEPARATOR . 'outside.txt', $this->storage->getSanitizedFilePath('../outside.txt'));
+    }
+
+    public function testGetSanitizedFilePath()
+    {
+        $this->assertEquals($this->tempDir . DIRECTORY_SEPARATOR . 'subdir' . DIRECTORY_SEPARATOR . 'file.txt', $this->storage->getSanitizedFilePath('subdir/file.txt'));
+        $this->assertEquals($this->tempDir . DIRECTORY_SEPARATOR . 'file.txt', $this->storage->getSanitizedFilePath('file.txt'));
     }
 }

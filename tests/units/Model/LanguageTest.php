@@ -1,8 +1,9 @@
 <?php
 
-use Kanboard\Model\LanguageModel;
+namespace KanboardTests\units\Model;
 
-require_once __DIR__.'/../Base.php';
+use KanboardTests\units\Base;
+use Kanboard\Model\LanguageModel;
 
 class LanguageTest extends Base
 {
@@ -32,6 +33,18 @@ class LanguageTest extends Base
 
         $_SESSION['user'] = array('language' => 'xx_XX');
         $this->assertEquals('en', $languageModel->getJsLanguageCode());
+    }
+
+    public function testIsRtlLanguage()
+    {
+        $languageModel = new LanguageModel($this->container);
+        $this->assertFalse($languageModel->isRtlLanguage());
+
+        $_SESSION['user'] = array('language' => 'ar_SY');
+        $this->assertTrue($languageModel->isRtlLanguage());
+
+        $_SESSION['user'] = array('language' => 'en_GB');
+        $this->assertFalse($languageModel->isRtlLanguage());
     }
 
     public function testGetCurrentLanguage()

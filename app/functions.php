@@ -295,3 +295,65 @@ function n($value)
 {
     return Translator::getInstance()->number($value);
 }
+
+/**
+ * Sanitize a file path
+ *
+ * @param  string $path
+ * @return string|false
+ */
+function sanitize_path(string $path): string|false
+{
+    // Handle empty path
+    if (empty($path)) {
+        return false;
+    }
+
+    $dirSeparator = '/';
+
+    // Get Windows drive letter (C:/ or C:\)
+    $driveLetter = '';
+    if (preg_match('/^([a-zA-Z]:)([\/\\\].*)$/', $path, $matches)) {
+        $driveLetter = $matches[1];
+        $path = $matches[2];
+        $dirSeparator = '\\';
+    }
+
+    // If path is not absolute, make it relative to current working directory
+    if ($driveLetter === '' && substr($path, 0, 1) !== '/') {
+        $path = getcwd() . $dirSeparator . $path;
+    }
+
+    // Split path into components
+    $parts = explode($dirSeparator, $path);
+    $resolved = [];
+
+    foreach ($parts as $part) {
+        // Skip empty parts (caused by multiple slashes)
+        if ($part === '' || $part === '.') {
+            continue;
+        }
+
+        // Handle parent directory
+        if ($part === '..') {
+            if (count($resolved) > 0) {
+                array_pop($resolved);
+            }
+            // If we're at root and encounter .., ignore it
+            continue;
+        }
+
+        // Add normal directory/file component
+        $resolved[] = $part;
+    }
+
+    // Reconstruct the path
+    $normalized = ($driveLetter !== '' ? $driveLetter . $dirSeparator : $dirSeparator) . implode($dirSeparator, $resolved);
+
+    // Handle root case
+    if ($normalized === $dirSeparator) {
+        return $dirSeparator;
+    }
+
+    return $normalized;
+}

@@ -1,7 +1,8 @@
 <?php
 
-require_once __DIR__.'/../Base.php';
+namespace KanboardTests\units\Helper;
 
+use KanboardTests\units\Base;
 use Kanboard\Core\Session\FlashMessage;
 use Kanboard\Helper\AppHelper;
 
@@ -11,6 +12,12 @@ class AppHelperTest extends Base
     {
         $h = new AppHelper($this->container);
         $this->assertEquals('en', $h->jsLang());
+    }
+
+    public function testIsRtlLanguage()
+    {
+        $h = new AppHelper($this->container);
+        $this->assertFalse($h->isRtlLanguage());
     }
 
     public function testTimezone()

@@ -62,6 +62,7 @@ class LanguageModel extends Base
             'th_TH',
             'vi_VN',
             'fa_IR',
+            'ar_SY',
         );
     }
 
@@ -129,6 +130,7 @@ class LanguageModel extends Base
             'th_TH' => 'ไทย',
             'vi_VN' => 'Tiếng Việt',
             'fa_IR' => 'فارسی',
+            'ar_SY' => 'عربي',
         );
 
         if ($prepend) {
@@ -186,11 +188,30 @@ class LanguageModel extends Base
             'bs_BA' => 'bs',
             'mk_MK' => 'mk',
             'my_MY' => 'my',
+            'ar_SY' => 'ar',
         );
 
         $lang = $this->getCurrentLanguage();
 
         return isset($languages[$lang]) ? $languages[$lang] : 'en';
+    }
+
+    /**
+     * Check if current language requires RTL direction
+     *
+     * @access public
+     * @return bool
+     */
+    public function isRtlLanguage()
+    {
+        $rtlJsLanguageCodes = array(
+            'ar',
+            'fa',
+        );
+
+        $lang = $this->getJsLanguageCode();
+
+        return in_array($lang, $rtlJsLanguageCodes);
     }
 
     /**
