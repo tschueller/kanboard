@@ -33,7 +33,9 @@ class TextHelper extends Base
      */
     public function implode($glue, array $list)
     {
-        array_walk($list, function (&$value) { $value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8', false); });
+        array_walk($list, function (&$value) {
+            $value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8', false);
+        });
         return implode($glue, $list);
     }
 
@@ -47,6 +49,7 @@ class TextHelper extends Base
     public function markdown($text, $isPublicLink = false)
     {
         $parser = new Markdown($this->container, $isPublicLink);
+        $parser->setSafeMode(true);
         $parser->setMarkupEscaped(MARKDOWN_ESCAPE_HTML);
         $parser->setBreaksEnabled(true);
         return $parser->text($text ?: '');

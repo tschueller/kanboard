@@ -1,3 +1,73 @@
+Version 1.2.52 (April 4, 2026)
+------------------------------
+
+* fix: revoke public tokens for inactive users
+* fix: use timing-safe comparison for token validation
+* fix: validate task ownership before applying property changes
+* fix: enforce visibility controls for public and unprivileged access
+* fix: use parameterized queries in task finder and iCal
+
+Version 1.2.51 (March 7, 2026)
+------------------------------
+
+* test: upgrade to phpunit 12
+* fix(css): Fix accessibility issue of insufficient text to background contrast
+* fix: validate user external ID column
+* fix: restrict invite signup input to expected fields only
+* fix: prevent unsafe deserialization in database session handler (CWE-502)
+* fix: check file attachment ownership before deletion
+* fix: add permission checks in API procedures
+* fix: add followRedirects parameter to HTTP client methods to prevent SSRF bypasses
+* feat: add SSRF protection for webhook notifications
+* build(deps): bump pimple/pimple from 3.6.1 to 3.6.2
+* build(deps): bump docker/setup-qemu-action from 3 to 4
+* build(deps): bump docker/setup-buildx-action from 3 to 4
+* build(deps): bump docker/metadata-action from 5 to 6
+* build(deps): bump docker/login-action from 3 to 4
+* build(deps): bump docker/build-push-action from 6 to 7
+* build(deps): bump actions/upload-artifact from 6 to 7
+
+Version 1.2.50 (February 7, 2026)
+---------------------------------
+
+* test: bump phpunit version
+* fix: add missing authorization checks
+* fix: enforce plugin installer check in PluginController actions
+* fix: enable Parsedown safe mode for Markdown rendering
+* fix: add missing project authorization checks in controllers
+* fix: add CSRF protection for project role changes and enforce JSON content type
+* chore: use php-cs-fixer docker image in GitHub workflow instead of Composer
+* build(deps): bump pimple/pimple from 3.5.0 to 3.6.1
+
+Version 1.2.49 (January 6, 2026)
+--------------------------------
+
+* fix(ldap): ensure LDAP placeholders are escaped
+* fix: restore Ctrl+Enter submission on the task creation form
+* feat(locale): update translations
+* feat: prevent protocol-relative URL redirects after login
+* feat: block private network access for external web link (configurable)
+* feat: add `TRUSTED_PROXY_NETWORKS` config option
+* ci: add workflow to mirror GitHub repo to Codeberg
+* chore: remove outdated `tests/Dockerfile`
+* chore: regenerate autoload Composer files
+* build(deps): bump alpine from 3.22 to 3.23
+* build(deps): bump actions/upload-artifact from 4 to 6
+* build(deps): bump actions/checkout from 5 to 6
+
+Version 1.2.48 (October 18, 2025)
+--------------------------------
+
+* fix: handle Windows-style paths in `sanitize_path` function
+* feat(locale): added missing German translation phrases
+* feat(locale): added Arabic translation
+* feat(api): add board, rss and ical public links to the API response
+* feat: display sub-tasks completion in numbers (x/y) alongside percentage
+* feat: add basic support for right-to-left (RTL) languages
+* chore: update .gitattributes to ignore additional configuration files
+* build(deps): bump actions/setup-python from 5 to 6
+* build(deps): bump actions/checkout from 4 to 5
+
 Version 1.2.47 (August 11, 2025)
 --------------------------------
 

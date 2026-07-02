@@ -1,15 +1,11 @@
 # Security Policy
 
-## Supported Versions
+Kanboard is currently in **maintenance mode**.
+There is no active feature development, only occasional bug fixes and small improvements.
 
-Only the latest stable version is supported.
+Private vulnerability reporting on GitHub has been **disabled** due to a high volume of low-quality, AI-generated reports.
 
-## Reporting a Vulnerability
+Reviewing these reports takes time away from the people maintaining the project.
+Most submissions are invalid, theoretical, non-exploitable, require unrealistic conditions, or describe simple bugs rather than real security issues.
 
-Do not open a new GitHub issue if the bug is a security vulnerability.
-
-Preferably, [report the vulnerability privately by creating a new GitHub security advisory](https://github.com/kanboard/kanboard/security/advisories/new) ([documentation](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing/privately-reporting-a-security-vulnerability)).
-
-If you do not want to use GitHub, send an email to `security AT kanboard DOT net` with all the steps to reproduce the problem ([GPG Key](https://github.com/kanboard/website/blob/main/gpg/233EB58F67369B1C0F3D52C8748E4EFA8B940533.asc)).
-
-Keep in mind that **this software is in maintenance mode**.
+Security issues are now treated as regular bugs.

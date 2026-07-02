@@ -147,10 +147,15 @@ class Request extends Base
      * Get the Json request body
      *
      * @access public
+     * @param  bool  $enforceContentType
      * @return array
      */
-    public function getJson()
+    public function getJson($enforceContentType = true)
     {
+        if ($enforceContentType && ! $this->isJsonContentType()) {
+            return array();
+        }
+
         return json_decode($this->getBody(), true) ?: array();
     }
 
@@ -228,6 +233,23 @@ class Request extends Base
     }
 
     /**
+     * Check if the request Content-Type is JSON
+     *
+     * @access public
+     * @return bool
+     */
+    public function isJsonContentType()
+    {
+        $contentType = $this->getServerVariable('CONTENT_TYPE');
+
+        if ($contentType === '') {
+            $contentType = $this->getServerVariable('HTTP_CONTENT_TYPE');
+        }
+
+        return stripos($contentType, 'application/json') === 0;
+    }
+
+    /**
      * Check if the page is requested through HTTPS
      *
      * Note: IIS return the value 'off' and other web servers an empty value when it's not HTTPS
@@ -273,10 +295,14 @@ class Request extends Base
      * Get remote user
      *
      * @access public
+     * @param  array $trustedProxyNetworks
      * @return string
      */
-    public function getRemoteUser()
+    public function getRemoteUser(array $trustedProxyNetworks = [])
     {
+        if (! $this->isTrustedProxy($trustedProxyNetworks)) {
+            return '';
+        }
         return $this->getServerVariable(REVERSE_PROXY_USER_HEADER);
     }
 
@@ -284,10 +310,14 @@ class Request extends Base
      * Get remote email
      *
      * @access public
+     * @param  array $trustedProxyNetworks
      * @return string
      */
-    public function getRemoteEmail()
+    public function getRemoteEmail(array $trustedProxyNetworks = [])
     {
+        if (! $this->isTrustedProxy($trustedProxyNetworks)) {
+            return '';
+        }
         return $this->getServerVariable(REVERSE_PROXY_EMAIL_HEADER);
     }
 
@@ -295,10 +325,14 @@ class Request extends Base
      * Get remote user full name
      *
      * @access public
+     * @param  array $trustedProxyNetworks
      * @return string
      */
-    public function getRemoteName()
+    public function getRemoteName(array $trustedProxyNetworks = [])
     {
+        if (! $this->isTrustedProxy($trustedProxyNetworks)) {
+            return '';
+        }
         return $this->getServerVariable(REVERSE_PROXY_FULLNAME_HEADER);
     }
 
@@ -325,6 +359,48 @@ class Request extends Base
     }
 
     /**
+     * Check if a redirect URI is safe (relative path)
+     *
+     * @access public
+     * @param  string   $uri   Redirect URI
+     * @return bool
+     */
+    public function isSafeRedirectUri($uri)
+    {
+        $uri = trim($uri);
+        if ($uri === '') {
+            return false;
+        }
+
+        // Reject backslashes
+        if (str_contains($uri, '\\')) {
+            return false;
+        }
+
+        // Reject if it starts with // (protocol-relative)
+        if (str_starts_with($uri, '//')) {
+            return false;
+        }
+
+        // Reject if it does not start with a slash (relative path)
+        if (! str_starts_with($uri, '/')) {
+            return false;
+        }
+
+        $parsedUrl = parse_url($uri);
+        if ($parsedUrl === false) {
+            return false;
+        }
+
+        // Reject if it contains a scheme or host (partial or full URL)
+        if (isset($parsedUrl['scheme']) || isset($parsedUrl['host'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Get the user agent
      *
      * @access public
@@ -336,17 +412,31 @@ class Request extends Base
     }
 
     /**
-     * Get the IP address of the user
+     * Get the client IP address
+     *
+     * It returns the proxy IP address if the request is sent through a reverse proxy or the direct client IP address otherwise.
      *
      * @access public
-     * @param  array   $trustedProxyHeaders  List of trusted proxy headers
-     *                                       (default: TRUSTED_PROXY_HEADERS constant)
      * @return string
      */
-    public function getIpAddress(array $trustedProxyHeaders = [])
+    public function getClientIpAddress()
     {
-        $trustedProxyHeaders = $trustedProxyHeaders ?: explode(',', TRUSTED_PROXY_HEADERS);
-        $keys = array_merge(array_map('trim', $trustedProxyHeaders), ['REMOTE_ADDR']);
+        return $this->getServerVariable('REMOTE_ADDR');
+    }
+
+    /**
+     * Get the real user IP address considering trusted proxy headers and networks
+     *
+     * @access public
+     * @param  array   $trustedProxyHeaders  List of trusted proxy headers (default: TRUSTED_PROXY_HEADERS constant)
+     * @param  array   $trustedProxyNetworks List of trusted proxy networks (default: TRUSTED_PROXY_NETWORKS constant)
+     * @return string
+     */
+    public function getIpAddress(array $trustedProxyHeaders = [], array $trustedProxyNetworks = [])
+    {
+        $trustedProxyHeaders = array_filter(array_map('trim', $trustedProxyHeaders ?: explode(',', TRUSTED_PROXY_HEADERS)));
+        $useProxyHeaders = ! empty($trustedProxyHeaders) && $this->isTrustedProxy($trustedProxyNetworks);
+        $keys = $useProxyHeaders ? $trustedProxyHeaders : [];
 
         foreach ($keys as $key) {
             if ($this->getServerVariable($key) !== '') {
@@ -359,7 +449,7 @@ class Request extends Base
             }
         }
 
-        return t('Unknown');
+        return $this->getClientIpAddress();
     }
 
     /**
@@ -396,5 +486,111 @@ class Request extends Base
         }
 
         return $values;
+    }
+
+    /**
+     * Check if an IP address belongs to a trusted proxy network
+     *
+     * @access public
+     * @param  array       $trustedProxyNetworks
+     * @return bool
+     */
+    public function isTrustedProxy(array $trustedProxyNetworks = [])
+    {
+        $ipAddress = $this->getClientIpAddress();
+        if ($ipAddress === '') {
+            return false;
+        }
+
+        $trustedProxyNetworks = array_filter(array_map('trim', $trustedProxyNetworks ?: explode(',', TRUSTED_PROXY_NETWORKS)));
+        if (empty($trustedProxyNetworks)) {
+            return false;
+        }
+
+        $this->logger->debug('Checking if IP address {ip} belongs to trusted proxy networks: {networks}', ['ip' => $ipAddress, 'networks' => implode(', ', $trustedProxyNetworks)]);
+
+        return $this->isIpInNetworks($ipAddress, $trustedProxyNetworks);
+    }
+
+    /**
+     * Check if an IP belongs to any of the provided networks
+     *
+     * @access protected
+     * @param string $ipAddress
+     * @param array $networks
+     * @return bool
+     */
+    protected function isIpInNetworks($ipAddress, array $networks)
+    {
+        if (! filter_var($ipAddress, FILTER_VALIDATE_IP)) {
+            return false;
+        }
+
+        $ipBinary = inet_pton($ipAddress);
+
+        foreach ($networks as $network) {
+            if ($network === '') {
+                continue;
+            }
+
+            $mask = null;
+            if (strpos($network, '/') !== false) {
+                list($networkAddress, $mask) = explode('/', $network, 2);
+            } else {
+                $networkAddress = $network;
+            }
+
+            if (! filter_var($networkAddress, FILTER_VALIDATE_IP)) {
+                continue;
+            }
+
+            $networkBinary = inet_pton($networkAddress);
+
+            if ($networkBinary === false || strlen($networkBinary) !== strlen($ipBinary)) {
+                continue;
+            }
+
+            $maxMask = strlen($networkBinary) * 8;
+            $mask = ($mask === null || $mask === '') ? $maxMask : max(0, min((int) $mask, $maxMask));
+
+            if ($this->ipMatchesNetwork($ipBinary, $networkBinary, $mask)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Perform a binary comparison between an IP and a network mask
+     *
+     * @access protected
+     * @param string $ipBinary
+     * @param string $networkBinary
+     * @param int    $mask
+     * @return bool
+     */
+    protected function ipMatchesNetwork($ipBinary, $networkBinary, $mask)
+    {
+        if ($mask === 0) {
+            return true;
+        }
+
+        $bytes = (int) floor($mask / 8);
+        $bits = $mask % 8;
+
+        if ($bytes > 0 && strncmp($ipBinary, $networkBinary, $bytes) !== 0) {
+            return false;
+        }
+
+        if ($bits === 0) {
+            return true;
+        }
+
+        $maskByte = ~((1 << (8 - $bits)) - 1) & 0xFF;
+        $ipByte = ord($ipBinary[$bytes]);
+        $networkByte = ord($networkBinary[$bytes]);
+
+        return ($ipByte & $maskByte) === ($networkByte & $maskByte);
     }
 }

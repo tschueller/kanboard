@@ -9,6 +9,7 @@ use Kanboard\Auth\DatabaseAuth;
 use Kanboard\Auth\TotpAuth;
 use Kanboard\Auth\ReverseProxyAuth;
 
+#[\PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations]
 class AuthenticationManagerTest extends Base
 {
     public function testRegister()
@@ -77,7 +78,15 @@ class AuthenticationManagerTest extends Base
 
     public function testPreAuthenticationSuccessful()
     {
-        $this->container['request'] = new Request($this->container, array(REVERSE_PROXY_USER_HEADER => 'admin'));
+        $request = $this
+            ->getMockBuilder(Request::class)
+            ->setConstructorArgs(array($this->container, array(REVERSE_PROXY_USER_HEADER => 'admin')))
+            ->onlyMethods(array('isTrustedProxy'))
+            ->getMock();
+
+        $request->method('isTrustedProxy')->willReturn(true);
+
+        $this->container['request'] = $request;
         $this->container['dispatcher']->addListener(AuthenticationManager::EVENT_SUCCESS, array($this, 'onSuccess'));
         $this->container['dispatcher']->addListener(AuthenticationManager::EVENT_FAILURE, array($this, 'onFailure'));
 
@@ -93,7 +102,15 @@ class AuthenticationManagerTest extends Base
 
     public function testPreAuthenticationFailed()
     {
-        $this->container['request'] = new Request($this->container, array(REVERSE_PROXY_USER_HEADER => ''));
+        $request = $this
+            ->getMockBuilder(Request::class)
+            ->setConstructorArgs(array($this->container, array(REVERSE_PROXY_USER_HEADER => '')))
+            ->onlyMethods(array('isTrustedProxy'))
+            ->getMock();
+
+        $request->method('isTrustedProxy')->willReturn(true);
+
+        $this->container['request'] = $request;
         $this->container['dispatcher']->addListener(AuthenticationManager::EVENT_SUCCESS, array($this, 'onSuccess'));
         $this->container['dispatcher']->addListener(AuthenticationManager::EVENT_FAILURE, array($this, 'onFailure'));
 

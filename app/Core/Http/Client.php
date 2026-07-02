@@ -27,11 +27,12 @@ class Client extends Base
      * @param  string     $url
      * @param  string[]   $headers
      * @param  bool       $raiseForErrors
+     * @param  bool       $followRedirects
      * @return string
      */
-    public function get($url, array $headers = [], $raiseForErrors = false)
+    public function get($url, array $headers = [], $raiseForErrors = false, $followRedirects = true)
     {
-        return $this->doRequest('GET', $url, '', $headers, $raiseForErrors);
+        return $this->doRequest('GET', $url, '', $headers, $raiseForErrors, $followRedirects);
     }
 
     /**
@@ -41,11 +42,12 @@ class Client extends Base
      * @param  string     $url
      * @param  string[]   $headers
      * @param  bool       $raiseForErrors
+     * @param  bool       $followRedirects
      * @return array
      */
-    public function getJson($url, array $headers = [], $raiseForErrors = false)
+    public function getJson($url, array $headers = [], $raiseForErrors = false, $followRedirects = true)
     {
-        $response = $this->doRequest('GET', $url, '', array_merge(['Accept: application/json'], $headers), $raiseForErrors);
+        $response = $this->doRequest('GET', $url, '', array_merge(['Accept: application/json'], $headers), $raiseForErrors, $followRedirects);
         return json_decode($response, true) ?: [];
     }
 
@@ -57,16 +59,18 @@ class Client extends Base
      * @param  array      $data
      * @param  string[]   $headers
      * @param  bool       $raiseForErrors
+     * @param  bool       $followRedirects
      * @return string
      */
-    public function postJson($url, array $data, array $headers = [], $raiseForErrors = false)
+    public function postJson($url, array $data, array $headers = [], $raiseForErrors = false, $followRedirects = true)
     {
         return $this->doRequest(
             'POST',
             $url,
             json_encode($data),
             array_merge(['Content-type: application/json'], $headers),
-            $raiseForErrors
+            $raiseForErrors,
+            $followRedirects
         );
     }
 
@@ -140,9 +144,10 @@ class Client extends Base
      * @param  string     $content
      * @param  string[]   $headers
      * @param  bool       $raiseForErrors
+     * @param  bool       $followRedirects
      * @return string
      */
-    public function doRequest($method, $url, $content, array $headers, $raiseForErrors = false)
+    public function doRequest($method, $url, $content, array $headers, $raiseForErrors = false, $followRedirects = true)
     {
         $requestBody = '';
 
@@ -151,12 +156,12 @@ class Client extends Base
                 if (DEBUG) {
                     $this->logger->debug('HttpClient::doRequest: cURL detected');
                 }
-                $requestBody = $this->doRequestWithCurl($method, $url, $content, $headers, $raiseForErrors);
+                $requestBody = $this->doRequestWithCurl($method, $url, $content, $headers, $raiseForErrors, $followRedirects);
             } else {
                 if (DEBUG) {
                     $this->logger->debug('HttpClient::doRequest: using socket');
                 }
-                $requestBody = $this->doRequestWithSocket($method, $url, $content, $headers, $raiseForErrors);
+                $requestBody = $this->doRequestWithSocket($method, $url, $content, $headers, $raiseForErrors, $followRedirects);
             }
         }
 
@@ -172,12 +177,13 @@ class Client extends Base
      * @param  string     $content
      * @param  string[]   $headers
      * @param  bool       $raiseForErrors
+     * @param  bool       $followRedirects
      * @return string
      */
-    private function doRequestWithSocket($method, $url, $content, array $headers, $raiseForErrors = false)
+    private function doRequestWithSocket($method, $url, $content, array $headers, $raiseForErrors = false, $followRedirects = true)
     {
         $startTime = microtime(true);
-        $stream = @fopen(trim($url), 'r', false, stream_context_create($this->getContext($method, $content, $headers, $raiseForErrors)));
+        $stream = @fopen(trim($url), 'r', false, stream_context_create($this->getContext($method, $content, $headers, $raiseForErrors, $followRedirects)));
 
         if (! is_resource($stream)) {
             $this->logger->error('HttpClient: request failed ('.$url.')');
@@ -222,9 +228,10 @@ class Client extends Base
      * @param  string     $content
      * @param  string[]   $headers
      * @param  bool       $raiseForErrors
+     * @param  bool       $followRedirects
      * @return string
      */
-    private function doRequestWithCurl($method, $url, $content, array $headers, $raiseForErrors = false)
+    private function doRequestWithCurl($method, $url, $content, array $headers, $raiseForErrors = false, $followRedirects = true)
     {
         $startTime = microtime(true);
         $curlSession = @curl_init();
@@ -234,9 +241,9 @@ class Client extends Base
         curl_setopt($curlSession, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         curl_setopt($curlSession, CURLOPT_TIMEOUT, HTTP_TIMEOUT);
         curl_setopt($curlSession, CURLOPT_FORBID_REUSE, true);
-        curl_setopt($curlSession, CURLOPT_MAXREDIRS, HTTP_MAX_REDIRECTS);
+        curl_setopt($curlSession, CURLOPT_MAXREDIRS, $followRedirects ? HTTP_MAX_REDIRECTS : 0);
         curl_setopt($curlSession, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curlSession, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($curlSession, CURLOPT_FOLLOWLOCATION, $followRedirects);
 
         if ('POST' === $method) {
             curl_setopt($curlSession, CURLOPT_POST, true);
@@ -312,9 +319,10 @@ class Client extends Base
      * @param  string     $content
      * @param  string[]   $headers
      * @param  bool       $raiseForErrors
+     * @param  bool       $followRedirects
      * @return array
      */
-    private function getContext($method, $content, array $headers, $raiseForErrors = false)
+    private function getContext($method, $content, array $headers, $raiseForErrors = false, $followRedirects = true)
     {
         $default_headers = [
             'User-Agent: '.self::HTTP_USER_AGENT,
@@ -332,7 +340,8 @@ class Client extends Base
                 'method' => $method,
                 'protocol_version' => 1.1,
                 'timeout' => HTTP_TIMEOUT,
-                'max_redirects' => HTTP_MAX_REDIRECTS,
+                'max_redirects' => $followRedirects ? HTTP_MAX_REDIRECTS : 0,
+                'follow_location' => $followRedirects ? 1 : 0,
                 'header' => implode("\r\n", $headers),
                 'content' => $content,
                 'ignore_errors' => $raiseForErrors,
@@ -377,5 +386,66 @@ class Client extends Base
     public static function backend()
     {
         return function_exists('curl_version') ? 'cURL' : 'socket';
+    }
+
+    /**
+     * Check if an IP address is private
+     *
+     * @access public
+     * @param  string     $ip
+     * @return bool
+     */
+    public function isPrivateIpAddress($ip)
+    {
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            return false;
+        }
+
+        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false;
+    }
+
+    /**
+     * Check if a URL is private (RFC1918, localhost, etc.)
+     *
+     * @access public
+     * @param  string     $url
+     * @return bool
+     */
+    public function isPrivateURL($url)
+    {
+        $parsedUrl = parse_url($url);
+
+        if (!isset($parsedUrl['scheme']) || !in_array(strtolower($parsedUrl['scheme']), ['http', 'https'], true)) {
+            return false;
+        }
+
+        if (!isset($parsedUrl['host'])) {
+            return false;
+        }
+
+        $host = trim($parsedUrl['host']);
+        if ($host === '') {
+            return false;
+        }
+
+        $ipv4Address = gethostbyname($host);
+        if ($this->isPrivateIpAddress($ipv4Address)) {
+            return true;
+        }
+
+        if (function_exists('dns_get_record')) {
+            $dnsRecords = @dns_get_record($host, DNS_AAAA);
+            if (is_array($dnsRecords)) {
+                foreach ($dnsRecords as $record) {
+                    if (isset($record['type']) && $record['type'] === 'AAAA' && isset($record['ipv6'])) {
+                        if ($this->isPrivateIpAddress($record['ipv6'])) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

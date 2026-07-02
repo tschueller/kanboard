@@ -2,6 +2,8 @@
 
 namespace Kanboard\Controller;
 
+use Kanboard\Model\UserMetadataModel;
+
 /**
  * Class UserModificationController
  *
@@ -26,6 +28,7 @@ class UserModificationController extends BaseController
         if (empty($values)) {
             $values = $user;
             unset($values['password']);
+            $values[UserMetadataModel::KEY_TASK_SEARCH_ALL_FIELDS] = $this->userMetadataModel->get($user['id'], UserMetadataModel::KEY_TASK_SEARCH_ALL_FIELDS, 0);
         }
 
         return $this->response->html($this->helper->layout->user('user_modification/show', array(
@@ -46,6 +49,10 @@ class UserModificationController extends BaseController
     {
         $user = $this->getUser();
         $values = $this->request->getValues();
+        $taskSearchAllFieldsFormKey = str_replace('.', '_', UserMetadataModel::KEY_TASK_SEARCH_ALL_FIELDS);
+        $taskSearchAllFields = isset($values[$taskSearchAllFieldsFormKey]) ? $values[$taskSearchAllFieldsFormKey] : 0;
+        unset($values[UserMetadataModel::KEY_TASK_SEARCH_ALL_FIELDS]);
+        unset($values[$taskSearchAllFieldsFormKey]);
 
         if (! $this->userSession->isAdmin()) {
             $values = array(
@@ -63,7 +70,9 @@ class UserModificationController extends BaseController
         list($valid, $errors) = $this->userValidator->validateModification($values);
 
         if ($valid) {
-            if ($this->userModel->update($values)) {
+            if ($this->userModel->update($values) && $this->userMetadataModel->save($user['id'], array(
+                UserMetadataModel::KEY_TASK_SEARCH_ALL_FIELDS => $taskSearchAllFields,
+            ))) {
                 $this->flash->success(t('User updated successfully.'));
                 $this->response->redirect($this->helper->url->to('UserViewController', 'show', array('user_id' => $user['id'])), true);
                 return;
@@ -72,6 +81,7 @@ class UserModificationController extends BaseController
             }
         }
 
+        $values[UserMetadataModel::KEY_TASK_SEARCH_ALL_FIELDS] = $taskSearchAllFields;
         $this->show($values, $errors);
     }
 }

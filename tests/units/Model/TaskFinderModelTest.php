@@ -4,10 +4,13 @@ namespace KanboardTests\units\Model;
 
 use KanboardTests\units\Base;
 use Kanboard\Model\ColumnModel;
+use Kanboard\Model\CommentModel;
 use Kanboard\Model\TaskCreationModel;
 use Kanboard\Model\TaskFinderModel;
 use Kanboard\Model\ProjectModel;
 use Kanboard\Model\TaskModel;
+use Kanboard\Model\UserMetadataModel;
+use Kanboard\Model\UserModel;
 
 class TaskFinderModelTest extends Base
 {
@@ -181,6 +184,72 @@ class TaskFinderModelTest extends Base
 
         $this->assertEquals(1, $taskFinderModel->countByProjectId(1));
         $this->assertEquals(2, $taskFinderModel->countByProjectId(2));
+    }
+
+    public function testTaskLexerDefaultSearchMatchesTitleOnlyByDefault()
+    {
+        $taskCreationModel = new TaskCreationModel($this->container);
+        $commentModel = new CommentModel($this->container);
+        $projectModel = new ProjectModel($this->container);
+
+        $this->container['userSession']->initialize($this->container['userModel']->getById(1));
+
+        $this->assertEquals(1, $projectModel->create(array('name' => 'Project #1')));
+        $this->assertEquals(1, $taskCreationModel->create(array('title' => 'needle title', 'project_id' => 1)));
+        $this->assertEquals(2, $taskCreationModel->create(array('title' => 'Task #2', 'description' => 'needle description', 'project_id' => 1)));
+        $this->assertEquals(3, $taskCreationModel->create(array('title' => 'Task #3', 'project_id' => 1)));
+        $this->assertEquals(1, $commentModel->create(array('task_id' => 3, 'user_id' => 1, 'comment' => 'needle comment')));
+
+        $taskIds = array_column($this->container['taskLexer']->build('needle')->toArray(), 'id');
+        sort($taskIds);
+
+        $this->assertSame(array(1), $taskIds);
+    }
+
+    public function testTaskLexerDefaultSearchMatchesTitleDescriptionAndCommentsWhenEnabled()
+    {
+        $taskCreationModel = new TaskCreationModel($this->container);
+        $commentModel = new CommentModel($this->container);
+        $projectModel = new ProjectModel($this->container);
+
+        $this->container['userSession']->initialize($this->container['userModel']->getById(1));
+
+        $this->assertTrue($this->container['userMetadataModel']->save(1, array(UserMetadataModel::KEY_TASK_SEARCH_ALL_FIELDS => '1')));
+
+        $this->assertEquals(1, $projectModel->create(array('name' => 'Project #1')));
+        $this->assertEquals(1, $taskCreationModel->create(array('title' => 'needle title', 'project_id' => 1)));
+        $this->assertEquals(2, $taskCreationModel->create(array('title' => 'Task #2', 'description' => 'needle description', 'project_id' => 1)));
+        $this->assertEquals(3, $taskCreationModel->create(array('title' => 'Task #3', 'project_id' => 1)));
+        $this->assertEquals(1, $commentModel->create(array('task_id' => 3, 'user_id' => 1, 'comment' => 'needle comment')));
+
+        $taskIds = array_column($this->container['taskLexer']->build('needle')->toArray(), 'id');
+        sort($taskIds);
+
+        $this->assertSame(array(1, 2, 3), $taskIds);
+    }
+
+    public function testTaskLexerDefaultSearchIgnoresOtherUsersPreference()
+    {
+        $taskCreationModel = new TaskCreationModel($this->container);
+        $commentModel = new CommentModel($this->container);
+        $projectModel = new ProjectModel($this->container);
+        $userModel = new UserModel($this->container);
+
+        $this->container['userSession']->initialize($this->container['userModel']->getById(1));
+
+        $this->assertEquals(2, $userModel->create(array('username' => 'user2')));
+        $this->assertTrue($this->container['userMetadataModel']->save(2, array(UserMetadataModel::KEY_TASK_SEARCH_ALL_FIELDS => '1')));
+
+        $this->assertEquals(1, $projectModel->create(array('name' => 'Project #1')));
+        $this->assertEquals(1, $taskCreationModel->create(array('title' => 'needle title', 'project_id' => 1)));
+        $this->assertEquals(2, $taskCreationModel->create(array('title' => 'Task #2', 'description' => 'needle description', 'project_id' => 1)));
+        $this->assertEquals(3, $taskCreationModel->create(array('title' => 'Task #3', 'project_id' => 1)));
+        $this->assertEquals(1, $commentModel->create(array('task_id' => 3, 'user_id' => 1, 'comment' => 'needle comment')));
+
+        $taskIds = array_column($this->container['taskLexer']->build('needle')->toArray(), 'id');
+        sort($taskIds);
+
+        $this->assertSame(array(1), $taskIds);
     }
 
     public function testGetProjectToken()

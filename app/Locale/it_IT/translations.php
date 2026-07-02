@@ -923,7 +923,6 @@ return [
     'Auto' => 'Automatico',
     'Related' => 'Correlato',
     'Attachment' => 'Allegato',
-    'Title not found' => 'Titolo non trovato',
     'Web Link' => 'Link Web',
     'External links' => 'Link esterni',
     'Add external link' => 'Aggiungi link esterno',
@@ -1468,6 +1467,6 @@ return [
     'Add attachments' => 'Aggiungi allegati',
     'Task #%d "%s" is overdue' => 'Il compito #%d "%s" è scaduto',
     'Enable notifications by default for all new users' => 'Abilita le notifiche per impostazione predefinita per tutti i nuovi utenti',
-    // 'Assign the task to its creator for specific columns if no assignee is set manually' => '',
-    // 'Assign a task to the logged user on column change to specified column if no user is assigned' => '',
+    'Assign the task to its creator for specific columns if no assignee is set manually' => 'Assegna l\'attività al suo creatore per colonne specifiche se non è stato impostato manualmente alcun assegnatario',
+    'Assign a task to the logged user on column change to specified column if no user is assigned' => 'Assegna un\'attività all\'utente connesso al cambio di colonna verso la colonna specificata se nessun utente è assegnato',
 ];

@@ -31,6 +31,7 @@ use Kanboard\Filter\TaskMovedDateRangeFilter;
 use Kanboard\Filter\TaskPriorityFilter;
 use Kanboard\Filter\TaskProjectFilter;
 use Kanboard\Filter\TaskReferenceFilter;
+use Kanboard\Filter\TaskSearchFilter;
 use Kanboard\Filter\TaskScoreFilter;
 use Kanboard\Filter\TaskStatusFilter;
 use Kanboard\Filter\TaskSubtaskAssigneeFilter;
@@ -40,6 +41,7 @@ use Kanboard\Filter\TaskTitleFilter;
 use Kanboard\Model\ProjectModel;
 use Kanboard\Model\ProjectGroupRoleModel;
 use Kanboard\Model\ProjectUserRoleModel;
+use Kanboard\Model\UserMetadataModel;
 use Kanboard\Model\UserModel;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
@@ -138,6 +140,7 @@ class FilterProvider implements ServiceProviderInterface
 
         $container['taskLexer'] = $container->factory(function ($c) {
             $builder = new LexerBuilder();
+            $isSearchAllFieldsEnabled = $c['userMetadataCacheDecorator']->get(UserMetadataModel::KEY_TASK_SEARCH_ALL_FIELDS, 0) == 1;
 
             $builder
                 ->withQuery($c['taskFinderModel']->getExtendedQuery())
@@ -220,7 +223,12 @@ class FilterProvider implements ServiceProviderInterface
                     TaskTagFilter::getInstance()
                     ->setDatabase($c['db'])
                 )
-                ->withFilter(new TaskTitleFilter(), true)
+                ->withFilter(
+                    TaskSearchFilter::getInstance()
+                    ->setDatabase($c['db']),
+                    $isSearchAllFieldsEnabled
+                )
+                ->withFilter(new TaskTitleFilter(), ! $isSearchAllFieldsEnabled)
             ;
 
             return $builder;
